@@ -63,36 +63,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// src/index.js
-var m = __webpack_require__(1)
-
-var UserList = __webpack_require__(3)
-var UserForm = __webpack_require__(8)
-var Layout = __webpack_require__(9)
-
-//m.mount(document.body, UserList)
-m.route(document.body, "/list", {
-    "/list": {
-        render: function(){
-            return m(Layout, m(UserList))
-        }
-    },
-    "/edit/:id": {
-        render: function(vnode){
-            return m(Layout, m(UserForm, vnode.attrs))
-        }
-    },
-})
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(setImmediate, global) {;(function() {
@@ -1322,10 +1297,10 @@ m.vnode = Vnode
 if (true) module["exports"] = m
 else window.m = m
 }());
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6).setImmediate, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8).setImmediate, __webpack_require__(1)))
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports) {
 
 var g;
@@ -1352,12 +1327,104 @@ module.exports = g;
 
 
 /***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// src/models/User.js
+var m = __webpack_require__(0)
+
+var User = {
+    list: [],
+    loadList: function(){
+        //TODO: make XHR call
+        return m.request({
+            method: "GET",
+            url: "https://rem-rest-api.herokuapp.com/api/users",
+            withCredentials: true,
+        })
+                .then(function(result){
+                    User.list = result.data
+        })
+    },
+     current: {},
+    load: function(id) {
+        return m.request({
+            method: "GET",
+            url: "https://rem-rest-api.herokuapp.com/api/users/:id",
+            data: {id: id},
+            withCredentials: true,
+        })
+        .then(function(result) {
+            User.current = result
+        })
+    },
+    save: function(){
+        return m.request({
+            method: "PUT",
+            url: "https://rem-rest-api.herokuapp.com/api/users/:id",
+            data: User.current,
+            withCredentials: true,
+        })
+    }
+}
+
+module.exports = User
+
+/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var m = __webpack_require__(0)
+
+module.exports = {
+    view: function (vnode) {
+        return m("main.layout", [
+            m("nav.menu", [
+                m("a[href='/list']", {oncreate: m.route.link}, "Users")
+            ]),
+            m("section", vnode.children)
+        ])
+    }
+}
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// src/views/UserForm.js
+var m = __webpack_require__(0)
+var User = __webpack_require__(2)
+
+module.exports = {
+    oninit: function(vnode) {User.load(vnode.attrs.id)},
+    view: function () {
+        return m("form", {
+            onsubmit: function(e){
+                e.preventDefault()
+                User.save()
+            }
+        }, [
+            m("label.label", "First name"),
+            m("input.input[type=text][placeholder=First name]", {
+                oninput: m.withAttr("value", function(value) {User.current.firstName = value}),
+                value: User.current.firstName
+            }),
+            m("label.label", "Last name"),
+            m("input.input[placeholder=Last name]", {
+                oninput: m.withAttr("value", function(value) {User.current.lastName = value}),
+                value: User.current.lastName}),
+            m("button.button[type=submit]", "Save"),
+        ])
+    }
+}
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 // src/views/UserList.js
-var m = __webpack_require__(1)
-var User = __webpack_require__(7)
+var m = __webpack_require__(0)
+var User = __webpack_require__(2)
 
 module.exports = {
     oninit: User.loadList,
@@ -1370,7 +1437,7 @@ module.exports = {
 }
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1556,7 +1623,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 5 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -1746,10 +1813,10 @@ process.umask = function() { return 0; };
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(6)))
 
 /***/ }),
-/* 6 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -1802,102 +1869,40 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(5);
+__webpack_require__(7);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// src/models/User.js
-var m = __webpack_require__(1)
-
-var User = {
-    list: [],
-    loadList: function(){
-        //TODO: make XHR call
-        return m.request({
-            method: "GET",
-            url: "https://rem-rest-api.herokuapp.com/api/users",
-            withCredentials: true,
-        })
-                .then(function(result){
-                    User.list = result.data
-        })
-    },
-     current: {},
-    load: function(id) {
-        return m.request({
-            method: "GET",
-            url: "https://rem-rest-api.herokuapp.com/api/users/:id",
-            data: {id: id},
-            withCredentials: true,
-        })
-        .then(function(result) {
-            User.current = result
-        })
-    },
-    save: function(){
-        return m.request({
-            method: "PUT",
-            url: "https://rem-rest-api.herokuapp.com/api/users/:id",
-            data: User.current,
-            withCredentials: true,
-        })
-    }
-}
-
-module.exports = User
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// src/views/UserForm.js
-var m = __webpack_require__(1)
-var User = __webpack_require__(7)
-
-module.exports = {
-    oninit: function(vnode) {User.load(vnode.attrs.id)},
-    view: function () {
-        return m("form", {
-            onsubmit: function(e){
-                e.preventDefault()
-                User.save()
-            }
-        }, [
-            m("label.label", "First name"),
-            m("input.input[type=text][placeholder=First name]", {
-                oninput: m.withAttr("value", function(value) {User.current.firstName = value}),
-                value: User.current.firstName
-            }),
-            m("label.label", "Last name"),
-            m("input.input[placeholder=Last name]", {
-                oninput: m.withAttr("value", function(value) {User.current.lastName = value}),
-                value: User.current.lastName}),
-            m("button.button[type=submit]", "Save"),
-        ])
-    }
-}
-
-/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var m = __webpack_require__(1)
+// src/index.js
+var m = __webpack_require__(0)
 
-module.exports = {
-    view: function (vnode) {
-        return m("main.layout", [
-            m("nav.menu", [
-                m("a[href='/list']", {oncreate: m.route.link}, "Users")
-            ]),
-            m("section", vnode.children)
-        ])
+var UserList = __webpack_require__(5)
+var UserForm = __webpack_require__(4)
+var Layout = __webpack_require__(3)
+
+//m.mount(document.body, UserList)
+m.route(document.body, "/list", {
+    "/list": {
+        render: function(){
+            return m(Layout, m(UserList))
+        }
+    },
+    "/edit/:id": {
+        render: function(vnode){
+            return m(Layout, m(UserForm, vnode.attrs))
+        }
+    },
+    "/delete/:id": {
+        render: function(){
+            return m(Layout, m(Userlist))
+        }
     }
-}
+})
 
 /***/ })
 /******/ ]);

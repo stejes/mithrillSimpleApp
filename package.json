@@ -1,0 +1,27 @@
+{
+  "name": "mithrilsimpleapp",
+  "version": "1.0.0",
+  "keywords": [
+    "util",
+    "functional",
+    "server",
+    "client",
+    "browser"
+  ],
+  "author": "steven.jespers",
+  "contributors": [],
+  "dependencies": {
+    "mithril": "^1.1.1",
+    "webpack": "^2.3.3"
+  },
+  "main": "Gruntfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack src/index.js bin/app.js --watch"
+  },
+  "license": "ISC",
+  "description": ""
+}

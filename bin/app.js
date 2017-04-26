@@ -1335,36 +1335,46 @@ var m = __webpack_require__(0)
 
 var User = {
     list: [],
-    loadList: function(){
+    loadList: function () {
         //TODO: make XHR call
         return m.request({
             method: "GET",
             url: "https://rem-rest-api.herokuapp.com/api/users",
             withCredentials: true,
         })
-                .then(function(result){
+                .then(function (result) {
                     User.list = result.data
-        })
+                })
     },
-     current: {},
-    load: function(id) {
+    current: {},
+    load: function (id) {
         return m.request({
             method: "GET",
             url: "https://rem-rest-api.herokuapp.com/api/users/:id",
             data: {id: id},
             withCredentials: true,
         })
-        .then(function(result) {
-            User.current = result
-        })
+                .then(function (result) {
+                    User.current = result
+                })
     },
-    save: function(){
+    save: function () {
         return m.request({
             method: "PUT",
             url: "https://rem-rest-api.herokuapp.com/api/users/:id",
             data: User.current,
             withCredentials: true,
         })
+    },
+    delete: function (id) {
+        return m.request({
+            method: "DELETE",
+            url: "https://rem-rest-api.herokuapp.com/api/users/:id",
+            data: {id: id},
+            withCredentials: true
+        })
+                .then(this.loadList)
+
     }
 }
 
@@ -1428,13 +1438,25 @@ var User = __webpack_require__(2)
 
 module.exports = {
     oninit: User.loadList,
-    view: function(){
+    view: function () {
         //TODO
-        return m(".user-list", User.list.map(function(user){
-            return m("a.user-list-item", {href: "/edit/" + user.id, oncreate: m.route.link}, user.firstName + " " + user.lastName)
-        }))
+        return m(".user-list", User.list.map(function (user) {
+            return m("form", {
+                onsubmit: function (e) {
+                    e.preventDefault()
+                    User.delete(user.id)
+                }
+            },
+                    [
+                        m("a.user-list-item", {href: "/edit/" + user.id, oncreate: m.route.link}, user.firstName + " " + user.lastName),
+                        m("button.button[type=submit]", "delete")
+                    ]
+                    )
+        })
+                )
     }
 }
+
 
 /***/ }),
 /* 6 */
